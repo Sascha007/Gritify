@@ -4,6 +4,7 @@ Generates grid patterns with their base positioned at the origin (0, 0, 0),
 ready for 3D printing on the XY plane.
 """
 
+import numpy as np
 from gritify.geometry import GridfinityBase
 
 
@@ -13,10 +14,11 @@ class GridPattern(GridfinityBase):
     def generate(self, width, depth, include_base=True):
         """
         Generate a grid pattern.
+        Supports half grids (0.5 unit increments) for better space utilization.
         
         Args:
-            width: Number of grid units in width
-            depth: Number of grid units in depth
+            width: Number of grid units in width (supports 0.5 increments)
+            depth: Number of grid units in depth (supports 0.5 increments)
             include_base: Whether to include base plate (default True)
             
         Returns:
@@ -41,12 +43,14 @@ class GridPattern(GridfinityBase):
         divider_thickness = 1.0
         divider_height = base_height + 2.0
         
+        # Calculate number of dividers for half grids
+        # Use ceil to ensure we have dividers at fractional positions
+        num_dividers_x = int(np.ceil(width)) + 1
+        num_dividers_y = int(np.ceil(depth)) + 1
+        
         # Vertical dividers
-        # Note: Dividers are offset by half thickness to ensure the model starts at x=0.
-        # For i=0, the divider is centered at x=0.5 and spans from x=0 to x=1.
-        # This ensures the leftmost edge of the grid is at the origin (0, 0, 0).
-        for i in range(width + 1):
-            x = i * self.base_size + divider_thickness / 2
+        for i in range(num_dividers_x):
+            x = min(i * self.base_size, plate_width)
             divider = self.create_box(
                 center=(x, plate_depth / 2, divider_height / 2),
                 size=(divider_thickness, plate_depth, divider_height)
@@ -54,11 +58,8 @@ class GridPattern(GridfinityBase):
             meshes.append(divider)
         
         # Horizontal dividers
-        # Note: Dividers are offset by half thickness to ensure the model starts at y=0.
-        # For j=0, the divider is centered at y=0.5 and spans from y=0 to y=1.
-        # This ensures the front edge of the grid is at the origin (0, 0, 0).
-        for j in range(depth + 1):
-            y = j * self.base_size + divider_thickness / 2
+        for j in range(num_dividers_y):
+            y = min(j * self.base_size, plate_depth)
             divider = self.create_box(
                 center=(plate_width / 2, y, divider_height / 2),
                 size=(plate_width, divider_thickness, divider_height)

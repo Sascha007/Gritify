@@ -20,8 +20,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=4, 
             total_depth=4, 
-            bed_width=250.0, 
-            bed_depth=250.0
+            bed_length_x=250.0, 
+            bed_length_y=250.0
         )
         
         assert result['fits_bed'] is True
@@ -36,8 +36,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=10,
             total_depth=10,
-            bed_width=220.0,
-            bed_depth=220.0
+            bed_length_x=220.0,
+            bed_length_y=220.0
         )
         
         assert result['fits_bed'] is False
@@ -52,8 +52,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=15,
             total_depth=3,
-            bed_width=220.0,
-            bed_depth=220.0
+            bed_length_x=220.0,
+            bed_length_y=220.0
         )
         
         assert result['pieces_x'] >= 2
@@ -65,8 +65,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=3,
             total_depth=15,
-            bed_width=220.0,
-            bed_depth=220.0
+            bed_length_x=220.0,
+            bed_length_y=220.0
         )
         
         assert result['pieces_y'] >= 2
@@ -78,8 +78,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=5,
             total_depth=5,
-            bed_width=100.0,
-            bed_depth=100.0
+            bed_length_x=100.0,
+            bed_length_y=100.0
         )
         
         assert result['total_pieces'] > 1
@@ -91,8 +91,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=5,
             total_depth=5,
-            bed_width=400.0,
-            bed_depth=400.0
+            bed_length_x=400.0,
+            bed_length_y=400.0
         )
         
         assert result['fits_bed'] is True
@@ -104,8 +104,8 @@ class TestPrintbedBreakdown:
         result = breakdown.calculate_breakdown(
             total_width=6,
             total_depth=6,
-            bed_width=220.0,
-            bed_depth=220.0
+            bed_length_x=220.0,
+            bed_length_y=220.0
         )
         
         # Verify piece dimensions are reasonable
@@ -142,3 +142,58 @@ class TestPrintbedBreakdown:
         assert mesh1 is not None
         assert mesh2 is not None
         assert mesh3 is not None
+    
+    def test_calculate_breakdown_with_half_grids(self):
+        """Test breakdown calculation that uses half grids."""
+        breakdown = PrintbedBreakdown()
+        result = breakdown.calculate_breakdown(
+            total_width=7,
+            total_depth=7,
+            bed_length_x=220.0,
+            bed_length_y=220.0
+        )
+        
+        # Check if half grids are being used (piece sizes should be 0.5 increments)
+        assert 'uses_half_grids' in result
+        # Verify piece width/depth are in 0.5 increments
+        assert result['piece_width'] % 0.5 == 0
+        assert result['piece_depth'] % 0.5 == 0
+    
+    def test_calculate_breakdown_with_spacers(self):
+        """Test breakdown calculation that includes spacers."""
+        breakdown = PrintbedBreakdown()
+        result = breakdown.calculate_breakdown(
+            total_width=11,
+            total_depth=11,
+            bed_length_x=220.0,
+            bed_length_y=220.0
+        )
+        
+        # Check that spacer information is included
+        assert 'spacer_x' in result
+        assert 'spacer_y' in result
+        assert 'spacer_x_mm' in result
+        assert 'spacer_y_mm' in result
+        assert 'uses_spacers' in result
+        
+        # Spacers should be non-negative
+        assert result['spacer_x'] >= 0
+        assert result['spacer_y'] >= 0
+    
+    def test_generate_piece_with_half_grids(self):
+        """Test generating a piece that uses half grids."""
+        breakdown = PrintbedBreakdown()
+        
+        # This should create pieces with fractional dimensions
+        mesh = breakdown.generate_piece(
+            total_width=3,
+            total_depth=3,
+            height=2,
+            piece_x=0,
+            piece_y=0,
+            pieces_x=2,
+            pieces_y=2
+        )
+        
+        assert mesh is not None
+        assert mesh.data.size > 0
