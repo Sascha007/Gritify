@@ -10,9 +10,12 @@ let scene, camera, renderer, controls;
 let currentMesh = null;
 let wireframeMode = false;
 
+// Color constants
+const MODEL_COLOR = 0x667eea;
+
 // Material properties constants
 const SOLID_MATERIAL_PROPS = {
-    color: 0x667eea,
+    color: MODEL_COLOR,
     specular: 0x444444,
     shininess: 100,
     flatShading: false
@@ -209,7 +212,7 @@ function toggleWireframe() {
     if (wireframeMode) {
         // Create wireframe material
         currentMesh.material = new THREE.MeshBasicMaterial({
-            color: 0x667eea,
+            color: MODEL_COLOR,
             wireframe: true,
             transparent: true,
             opacity: 0.8
@@ -217,6 +220,9 @@ function toggleWireframe() {
     } else {
         // Restore solid material
         currentMesh.material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
+        // Restore shadow properties
+        currentMesh.castShadow = true;
+        currentMesh.receiveShadow = true;
     }
     
     // Dispose old material after assignment
