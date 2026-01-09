@@ -7,7 +7,8 @@ from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 
 from config import (DEBUG, HOST, PORT, GENERATED_DIR, MAX_GRID_WIDTH, MAX_GRID_DEPTH, 
-                    MAX_HEIGHT_UNITS, GRIDFINITY_BASE_SIZE, GRIDFINITY_HEIGHT_UNIT)
+                    MAX_HEIGHT_UNITS, GRIDFINITY_BASE_SIZE, GRIDFINITY_HEIGHT_UNIT, 
+                    GRIDFINITY_GRID_BASE_HEIGHT)
 from gritify.modules.grid_pattern import GridPattern
 from gritify.modules.box import Box
 from gritify.modules.inlay_box import InlayBox
@@ -50,7 +51,7 @@ def generate_grid():
         # Calculate dimensions
         size_x = width * GRIDFINITY_BASE_SIZE
         size_y = depth * GRIDFINITY_BASE_SIZE
-        size_z = 5.0  # Grid base height
+        size_z = GRIDFINITY_GRID_BASE_HEIGHT
         
         return jsonify({
             'success': True,
