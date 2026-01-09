@@ -5,7 +5,7 @@ const API_BASE = window.location.origin;
 let currentDownloadUrl = null;
 
 // Show download section
-function showDownload(filename, downloadUrl) {
+function showDownload(filename, downloadUrl, dimensions) {
     const downloadSection = document.getElementById('download-section');
     const filenameEl = document.getElementById('filename');
     const downloadLink = document.getElementById('download-link');
@@ -13,6 +13,17 @@ function showDownload(filename, downloadUrl) {
     
     filenameEl.textContent = filename;
     downloadLink.href = downloadUrl;
+    
+    // Display dimensions if provided
+    if (dimensions) {
+        document.getElementById('dim-x').textContent = dimensions.x.toFixed(1);
+        document.getElementById('dim-y').textContent = dimensions.y.toFixed(1);
+        document.getElementById('dim-z').textContent = dimensions.z.toFixed(1);
+        document.getElementById('dimensions-info').style.display = 'block';
+    } else {
+        document.getElementById('dimensions-info').style.display = 'none';
+    }
+    
     downloadSection.style.display = 'block';
     if (placeholder) {
         placeholder.style.display = 'none';
@@ -91,7 +102,7 @@ async function generateGrid() {
         const result = await apiCall('generate/grid', data);
         
         showMessage('Grid generated successfully!', 'success');
-        showDownload(result.filename, result.download_url);
+        showDownload(result.filename, result.download_url, result.dimensions);
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
     } finally {
@@ -117,7 +128,7 @@ async function generateBox() {
         const result = await apiCall('generate/box', data);
         
         showMessage('Box generated successfully!', 'success');
-        showDownload(result.filename, result.download_url);
+        showDownload(result.filename, result.download_url, result.dimensions);
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
     } finally {
@@ -145,7 +156,7 @@ async function generateInlay() {
         const result = await apiCall('generate/inlay', data);
         
         showMessage('Inlay box generated successfully!', 'success');
-        showDownload(result.filename, result.download_url);
+        showDownload(result.filename, result.download_url, result.dimensions);
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
     } finally {

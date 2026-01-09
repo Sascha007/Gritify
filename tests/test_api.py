@@ -48,6 +48,13 @@ class TestGridGenerationEndpoint:
         assert 'download_url' in data
         assert data['filename'].startswith('grid_2x2_')
         assert data['filename'].endswith('.stl')
+        
+        # Check dimensions are present
+        assert 'dimensions' in data
+        assert data['dimensions']['x'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['y'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['z'] == 5.0   # Grid base height
+        assert data['dimensions']['units'] == 'mm'
     
     def test_generate_grid_without_base(self, client):
         """Test grid generation without base."""
@@ -106,6 +113,13 @@ class TestBoxGenerationEndpoint:
         assert data['success'] is True
         assert 'filename' in data
         assert data['filename'].startswith('box_2x2x2_')
+        
+        # Check dimensions are present
+        assert 'dimensions' in data
+        assert data['dimensions']['x'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['y'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['z'] == 14.0  # 2 * 7mm
+        assert data['dimensions']['units'] == 'mm'
     
     def test_generate_box_with_custom_wall_thickness(self, client):
         """Test box generation with custom wall thickness."""
@@ -153,6 +167,13 @@ class TestInlayGenerationEndpoint:
         assert data['success'] is True
         assert 'filename' in data
         assert data['filename'].startswith('inlay_2x2x2_')
+        
+        # Check dimensions are present
+        assert 'dimensions' in data
+        assert data['dimensions']['x'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['y'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['z'] == 14.0  # 2 * 7mm
+        assert data['dimensions']['units'] == 'mm'
     
     def test_generate_inlay_with_custom_divisions(self, client):
         """Test inlay generation with custom divisions."""

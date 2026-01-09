@@ -6,7 +6,8 @@ import uuid
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 
-from config import DEBUG, HOST, PORT, GENERATED_DIR, MAX_GRID_WIDTH, MAX_GRID_DEPTH, MAX_HEIGHT_UNITS
+from config import (DEBUG, HOST, PORT, GENERATED_DIR, MAX_GRID_WIDTH, MAX_GRID_DEPTH, 
+                    MAX_HEIGHT_UNITS, GRIDFINITY_BASE_SIZE, GRIDFINITY_HEIGHT_UNIT)
 from gritify.modules.grid_pattern import GridPattern
 from gritify.modules.box import Box
 from gritify.modules.inlay_box import InlayBox
@@ -46,10 +47,21 @@ def generate_grid():
         filepath = os.path.join(GENERATED_DIR, filename)
         mesh_obj.save(filepath)
         
+        # Calculate dimensions
+        size_x = width * GRIDFINITY_BASE_SIZE
+        size_y = depth * GRIDFINITY_BASE_SIZE
+        size_z = 5.0  # Grid base height
+        
         return jsonify({
             'success': True,
             'filename': filename,
-            'download_url': f'/api/download/{filename}'
+            'download_url': f'/api/download/{filename}',
+            'dimensions': {
+                'x': size_x,
+                'y': size_y,
+                'z': size_z,
+                'units': 'mm'
+            }
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -82,10 +94,21 @@ def generate_box():
         filepath = os.path.join(GENERATED_DIR, filename)
         mesh_obj.save(filepath)
         
+        # Calculate dimensions
+        size_x = width * GRIDFINITY_BASE_SIZE
+        size_y = depth * GRIDFINITY_BASE_SIZE
+        size_z = height * GRIDFINITY_HEIGHT_UNIT
+        
         return jsonify({
             'success': True,
             'filename': filename,
-            'download_url': f'/api/download/{filename}'
+            'download_url': f'/api/download/{filename}',
+            'dimensions': {
+                'x': size_x,
+                'y': size_y,
+                'z': size_z,
+                'units': 'mm'
+            }
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -120,10 +143,21 @@ def generate_inlay():
         filepath = os.path.join(GENERATED_DIR, filename)
         mesh_obj.save(filepath)
         
+        # Calculate dimensions
+        size_x = width * GRIDFINITY_BASE_SIZE
+        size_y = depth * GRIDFINITY_BASE_SIZE
+        size_z = height * GRIDFINITY_HEIGHT_UNIT
+        
         return jsonify({
             'success': True,
             'filename': filename,
-            'download_url': f'/api/download/{filename}'
+            'download_url': f'/api/download/{filename}',
+            'dimensions': {
+                'x': size_x,
+                'y': size_y,
+                'z': size_z,
+                'units': 'mm'
+            }
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
