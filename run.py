@@ -26,7 +26,7 @@ if __name__ == '__main__':
     🔲 Gridfinity Structure Generator
     
     Server starting at:
-    🌐 http://localhost:5000
+    🌐 http://localhost:5020
     
     Press Ctrl+C to stop the server
     """)
