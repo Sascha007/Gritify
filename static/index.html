@@ -61,6 +61,49 @@
             min-height: 600px;
         }
         
+        .viewer-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #856404;
+        }
+        
+        .download-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .download-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .download-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .download-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .download-button.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
         .tab-buttons {
             display: flex;
             gap: 10px;
@@ -384,17 +427,35 @@
             </div>
             
             <div class="viewer-panel">
-                <div class="viewer-controls">
-                    <p>🖱️ Left click + drag to rotate | Scroll to zoom | Right click + drag to pan</p>
+                <div class="viewer-note">
+                    <strong>ℹ️ 3D Preview</strong><br>
+                    3D preview rendering in the browser would normally be shown here using Three.js.
+                    Generate a model and download the STL file to view it in your favorite 3D viewer or slicer.
                 </div>
-                <div id="viewer"></div>
+                
+                <div class="download-section" id="download-section" style="display: none;">
+                    <h3>✅ Model Generated Successfully!</h3>
+                    <p>Your Gridfinity component has been generated and is ready for download.</p>
+                    <p><strong>File:</strong> <span id="filename"></span></p>
+                    <a href="#" id="download-link" class="download-button">📥 Download STL File</a>
+                </div>
+                
+                <div id="viewer-placeholder" style="text-align: center; padding: 100px 20px; color: #999;">
+                    <svg width="200" height="200" viewBox="0 0 200 200" style="margin: 0 auto;">
+                        <rect x="50" y="50" width="100" height="100" fill="none" stroke="#ddd" stroke-width="2"/>
+                        <rect x="60" y="60" width="80" height="80" fill="none" stroke="#ddd" stroke-width="2"/>
+                        <line x1="50" y1="50" x2="60" y2="60" stroke="#ddd" stroke-width="2"/>
+                        <line x1="150" y1="50" x2="140" y2="60" stroke="#ddd" stroke-width="2"/>
+                        <line x1="50" y1="150" x2="60" y2="140" stroke="#ddd" stroke-width="2"/>
+                        <line x1="150" y1="150" x2="140" y2="140" stroke="#ddd" stroke-width="2"/>
+                    </svg>
+                    <p style="font-size: 18px; margin-top: 20px;">Generate a model to get started</p>
+                </div>
             </div>
         </div>
     </div>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+    </script>
     <script src="app.js"></script>
 </body>
 </html>

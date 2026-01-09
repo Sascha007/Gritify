@@ -1,99 +1,23 @@
 // Gritify Frontend JavaScript
 
 // Global variables
-let scene, camera, renderer, controls, currentMesh;
 const API_BASE = window.location.origin;
+let currentDownloadUrl = null;
 
-// Initialize Three.js viewer
-function initViewer() {
-    const container = document.getElementById('viewer');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+// Show download section
+function showDownload(filename, downloadUrl) {
+    const downloadSection = document.getElementById('download-section');
+    const filenameEl = document.getElementById('filename');
+    const downloadLink = document.getElementById('download-link');
+    const placeholder = document.getElementById('viewer-placeholder');
     
-    // Scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf5f5f5);
-    
-    // Camera
-    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
-    camera.position.set(100, 100, 100);
-    
-    // Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
-    container.appendChild(renderer.domElement);
-    
-    // Controls
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0x404040, 2);
-    scene.add(ambientLight);
-    
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight1.position.set(1, 1, 1);
-    scene.add(directionalLight1);
-    
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight2.position.set(-1, -1, -1);
-    scene.add(directionalLight2);
-    
-    // Grid helper
-    const gridHelper = new THREE.GridHelper(200, 20);
-    scene.add(gridHelper);
-    
-    // Animation loop
-    animate();
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-}
-
-// Load and display STL
-function loadSTL(filename) {
-    const loader = new THREE.STLLoader();
-    const url = `${API_BASE}/api/download/${filename}`;
-    
-    // Remove existing mesh
-    if (currentMesh) {
-        scene.remove(currentMesh);
+    filenameEl.textContent = filename;
+    downloadLink.href = downloadUrl;
+    downloadSection.style.display = 'block';
+    if (placeholder) {
+        placeholder.style.display = 'none';
     }
-    
-    loader.load(url, function(geometry) {
-        const material = new THREE.MeshPhongMaterial({
-            color: 0x667eea,
-            specular: 0x111111,
-            shininess: 200
-        });
-        
-        currentMesh = new THREE.Mesh(geometry, material);
-        
-        // Center the geometry
-        geometry.computeBoundingBox();
-        const center = new THREE.Vector3();
-        geometry.boundingBox.getCenter(center);
-        geometry.translate(-center.x, -center.y, -geometry.boundingBox.min.z);
-        
-        scene.add(currentMesh);
-        
-        // Adjust camera
-        const box = new THREE.Box3().setFromObject(currentMesh);
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const fov = camera.fov * (Math.PI / 180);
-        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-        cameraZ *= 1.5;
-        
-        camera.position.set(cameraZ, cameraZ, cameraZ);
-        camera.lookAt(0, 0, 0);
-        controls.target.set(0, 0, 0);
-        controls.update();
-    });
+    currentDownloadUrl = downloadUrl;
 }
 
 // Show message
@@ -167,7 +91,7 @@ async function generateGrid() {
         const result = await apiCall('generate/grid', data);
         
         showMessage('Grid generated successfully!', 'success');
-        loadSTL(result.filename);
+        showDownload(result.filename, result.download_url);
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
     } finally {
@@ -193,7 +117,7 @@ async function generateBox() {
         const result = await apiCall('generate/box', data);
         
         showMessage('Box generated successfully!', 'success');
-        loadSTL(result.filename);
+        showDownload(result.filename, result.download_url);
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
     } finally {
@@ -221,7 +145,7 @@ async function generateInlay() {
         const result = await apiCall('generate/inlay', data);
         
         showMessage('Inlay box generated successfully!', 'success');
-        loadSTL(result.filename);
+        showDownload(result.filename, result.download_url);
     } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
     } finally {
@@ -274,7 +198,6 @@ async function calculatePrintbed() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    initViewer();
     setupTabs();
     
     // Attach event listeners
@@ -282,15 +205,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('generate-box').addEventListener('click', generateBox);
     document.getElementById('generate-inlay').addEventListener('click', generateInlay);
     document.getElementById('calculate-printbed').addEventListener('click', calculatePrintbed);
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        const container = document.getElementById('viewer');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
-    });
 });
