@@ -1,6 +1,7 @@
 """Unit tests for inlay_box module."""
 
 import pytest
+import numpy as np
 from gritify.modules.inlay_box import InlayBox
 
 
@@ -78,3 +79,20 @@ class TestInlayBox:
         
         assert mesh is not None
         assert mesh.data.size > 0
+    
+    def test_inlay_box_lays_on_xy_plane(self):
+        """Test that generated inlay box has basis at origin (0,0,0)."""
+        inlay = InlayBox()
+        mesh = inlay.generate(width=2, depth=2, height=2)
+        
+        # Get all vertices
+        all_vertices = mesh.vectors.reshape(-1, 3)
+        
+        # Verify minimum coordinates are at origin
+        min_x = all_vertices[:, 0].min()
+        min_y = all_vertices[:, 1].min()
+        min_z = all_vertices[:, 2].min()
+        
+        assert min_x == 0.0, f"InlayBox should start at X=0, but min X is {min_x}"
+        assert min_y == 0.0, f"InlayBox should start at Y=0, but min Y is {min_y}"
+        assert min_z == 0.0, f"InlayBox should start at Z=0, but min Z is {min_z}"
