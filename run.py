@@ -6,14 +6,18 @@ Run this script to start the web application
 
 import sys
 import os
+import multiprocessing
 
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import app
-from config import HOST, PORT, DEBUG
-
 if __name__ == '__main__':
+    # Fix for macOS multiprocessing with Flask reloader
+    multiprocessing.freeze_support()
+    
+    from app import app
+    from config import HOST, PORT, DEBUG
+    
     print("""
     ╔════════════════════════════════════════════╗
     ║        Gritify - Starting Server...        ║
