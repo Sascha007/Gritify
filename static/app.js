@@ -15,8 +15,7 @@ const SOLID_MATERIAL_PROPS = {
     color: 0x667eea,
     specular: 0x444444,
     shininess: 100,
-    flatShading: false,
-    reflectivity: 0.5
+    flatShading: false
 };
 
 // UI text constants
@@ -63,6 +62,15 @@ function initViewer() {
     const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight1.position.set(1, 1, 1);
     directionalLight1.castShadow = true;
+    // Configure shadow camera bounds for better shadow quality
+    directionalLight1.shadow.camera.left = -100;
+    directionalLight1.shadow.camera.right = 100;
+    directionalLight1.shadow.camera.top = 100;
+    directionalLight1.shadow.camera.bottom = -100;
+    directionalLight1.shadow.camera.near = 0.5;
+    directionalLight1.shadow.camera.far = 500;
+    directionalLight1.shadow.mapSize.width = 2048;
+    directionalLight1.shadow.mapSize.height = 2048;
     scene.add(directionalLight1);
     
     const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
@@ -139,11 +147,7 @@ async function loadSTL(filename) {
                 scene.add(currentMesh);
                 
                 // Reset wireframe mode when loading new model
-                wireframeMode = false;
-                const wireframeButton = document.getElementById('wireframe-toggle');
-                if (wireframeButton) {
-                    wireframeButton.textContent = WIREFRAME_BUTTON_TEXT.solid;
-                }
+                resetWireframeState();
                 
                 // Adjust camera to fit model
                 const box = new THREE.Box3().setFromObject(currentMesh);
@@ -174,6 +178,15 @@ async function loadSTL(filename) {
             }
         );
     });
+}
+
+// Reset wireframe state to default
+function resetWireframeState() {
+    wireframeMode = false;
+    const wireframeButton = document.getElementById('wireframe-toggle');
+    if (wireframeButton) {
+        wireframeButton.textContent = WIREFRAME_BUTTON_TEXT.solid;
+    }
 }
 
 // Toggle wireframe mode
