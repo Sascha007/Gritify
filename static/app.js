@@ -12,8 +12,8 @@ let currentMesh = null;
 // Initialize Three.js viewer
 function initViewer() {
     const container = document.getElementById('viewer');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 800; // Fallback dimensions
+    const height = container.clientHeight || 600;
     
     // Scene
     scene = new THREE.Scene();
@@ -28,7 +28,6 @@ function initViewer() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
     
     // Controls
@@ -124,7 +123,10 @@ async function loadSTL(filename) {
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
                 const fov = camera.fov * (Math.PI / 180);
-                const cameraDistance = Math.abs(maxDim / Math.sin(fov / 2));
+                let cameraDistance = Math.abs(maxDim / Math.sin(fov / 2));
+                
+                // Clamp camera distance to reasonable bounds
+                cameraDistance = Math.max(10, Math.min(cameraDistance, 500));
                 
                 camera.position.set(cameraDistance, cameraDistance, cameraDistance);
                 camera.lookAt(0, 0, 0);
@@ -138,10 +140,7 @@ async function loadSTL(filename) {
                 
                 resolve();
             },
-            (xhr) => {
-                // Progress callback
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
+            undefined, // Progress callback - removed for production
             (error) => {
                 console.error('Error loading STL:', error);
                 reject(error);
