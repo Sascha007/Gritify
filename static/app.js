@@ -184,6 +184,8 @@ function toggleWireframe() {
     
     // Update button text
     const button = document.getElementById('wireframe-toggle');
+    if (!button) return;
+    
     button.textContent = wireframeMode ? WIREFRAME_BUTTON_TEXT.wireframe : WIREFRAME_BUTTON_TEXT.solid;
     
     if (wireframeMode) {
