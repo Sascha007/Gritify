@@ -145,44 +145,45 @@ def create_rounded_rectangle_path(x, y, w, h, r, segments_per_arc=16):
     path.append((x + w - r, y))
     
     # Bottom-right arc (from 270° to 360°, or -90° to 0°)
+    # Skip i=0 to avoid duplicate with previous point
     cx, cy = x + w - r, y + r
-    for i in range(segments_per_arc + 1):
+    for i in range(1, segments_per_arc + 1):
         angle = -math.pi / 2 + (math.pi / 2) * (i / segments_per_arc)
         px = cx + r * math.cos(angle)
         py = cy + r * math.sin(angle)
         path.append((px, py))
     
     # Right edge: move up along right side
-    path.append((x + w, y + r))
     path.append((x + w, y + h - r))
     
     # Top-right arc (from 0° to 90°)
+    # Skip i=0 to avoid duplicate with previous point
     cx, cy = x + w - r, y + h - r
-    for i in range(segments_per_arc + 1):
+    for i in range(1, segments_per_arc + 1):
         angle = 0 + (math.pi / 2) * (i / segments_per_arc)
         px = cx + r * math.cos(angle)
         py = cy + r * math.sin(angle)
         path.append((px, py))
     
     # Top edge: move left along top
-    path.append((x + w - r, y + h))
     path.append((x + r, y + h))
     
     # Top-left arc (from 90° to 180°)
+    # Skip i=0 to avoid duplicate with previous point
     cx, cy = x + r, y + h - r
-    for i in range(segments_per_arc + 1):
+    for i in range(1, segments_per_arc + 1):
         angle = math.pi / 2 + (math.pi / 2) * (i / segments_per_arc)
         px = cx + r * math.cos(angle)
         py = cy + r * math.sin(angle)
         path.append((px, py))
     
     # Left edge: move down along left side
-    path.append((x, y + h - r))
     path.append((x, y + r))
     
     # Bottom-left arc (from 180° to 270°)
+    # Skip i=0 to avoid duplicate with previous point
     cx, cy = x + r, y + r
-    for i in range(segments_per_arc + 1):
+    for i in range(1, segments_per_arc + 1):
         angle = math.pi + (math.pi / 2) * (i / segments_per_arc)
         px = cx + r * math.cos(angle)
         py = cy + r * math.sin(angle)
