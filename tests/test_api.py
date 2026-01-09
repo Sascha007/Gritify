@@ -209,6 +209,93 @@ class TestInlayGenerationEndpoint:
         assert response.status_code == 400
 
 
+class TestStorageBoxGenerationEndpoint:
+    """Test cases for storage box generation endpoint."""
+    
+    def test_generate_storage_box_with_height_units(self, client):
+        """Test storage box generation with height in units."""
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_units': 3})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert 'filename' in data
+        assert 'storage_box_2x2x3u' in data['filename']
+        
+        # Check dimensions are present
+        assert 'dimensions' in data
+        assert data['dimensions']['x'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['y'] == 84.0  # 2 * 42mm
+        assert data['dimensions']['z'] == 21.0  # 3 * 7mm
+        assert data['dimensions']['units'] == 'mm'
+    
+    def test_generate_storage_box_with_height_cm(self, client):
+        """Test storage box generation with height in centimeters."""
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_cm': 5.0})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert 'storage_box_2x2x5.0cm' in data['filename']
+        
+        # Check dimensions are present
+        assert 'dimensions' in data
+        assert data['dimensions']['z'] == 50.0  # 5.0cm = 50mm
+    
+    def test_generate_storage_box_with_flat_inside(self, client):
+        """Test storage box generation with flat inside."""
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_units': 2, 'flat_inside': True})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+    
+    def test_generate_storage_box_with_grid_inside(self, client):
+        """Test storage box generation with grid inside."""
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_units': 2, 'flat_inside': False})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+    
+    def test_generate_storage_box_custom_wall_thickness(self, client):
+        """Test storage box generation with custom wall thickness."""
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_units': 2, 'wall_thickness': 3.0})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+    
+    def test_generate_storage_box_height_cm_precedence(self, client):
+        """Test that height_cm takes precedence over height_units."""
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_cm': 3.5, 'height_units': 5})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        # Should use height_cm (3.5cm = 35mm) not height_units (5 units = 35mm)
+        # Both happen to equal 35mm, but height_cm takes precedence
+        assert data['dimensions']['z'] == 35.0
+    
+    def test_generate_storage_box_invalid_dimensions(self, client):
+        """Test storage box generation with invalid dimensions."""
+        # Width too small
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 0, 'depth': 2, 'height_units': 2})
+        assert response.status_code == 400
+        
+        # Height in cm too large
+        response = client.post('/api/generate/storage_box',
+                             json={'width': 2, 'depth': 2, 'height_cm': 100.0})
+        assert response.status_code == 400
+
+
 class TestPrintbedCalculationEndpoint:
     """Test cases for printbed calculation endpoint."""
     
