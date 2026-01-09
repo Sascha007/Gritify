@@ -1,4 +1,8 @@
-"""Grid pattern generator module for Gridfinity."""
+"""Grid pattern generator module for Gridfinity.
+
+Generates grid patterns with their base positioned at the origin (0, 0, 0),
+ready for 3D printing on the XY plane.
+"""
 
 import numpy as np
 from gritify.geometry import GridfinityBase

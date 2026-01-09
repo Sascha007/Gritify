@@ -1,4 +1,8 @@
-"""Base geometry utilities for Gridfinity structures."""
+"""Base geometry utilities for Gridfinity structures.
+
+All generated models are positioned with their basis at the origin (0, 0, 0),
+ensuring they are ready for 3D printing with the base laying on the XY plane.
+"""
 
 import numpy as np
 from stl import mesh
@@ -30,6 +34,11 @@ class GridfinityBase:
             
         Returns:
             numpy-stl mesh object
+            
+        Note:
+            The box is created centered at the given coordinates.
+            To ensure the box starts at origin (0, 0, 0), set center to
+            (width/2, depth/2, height/2).
         """
         cx, cy, cz = center
         w, d, h = size

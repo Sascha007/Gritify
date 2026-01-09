@@ -1,6 +1,7 @@
 """Unit tests for grid_pattern module."""
 
 import pytest
+import numpy as np
 from gritify.modules.grid_pattern import GridPattern
 
 
