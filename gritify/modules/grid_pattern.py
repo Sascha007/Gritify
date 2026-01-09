@@ -1,4 +1,8 @@
-"""Grid pattern generator module for Gridfinity."""
+"""Grid pattern generator module for Gridfinity.
+
+Generates grid patterns with their base positioned at the origin (0, 0, 0),
+ready for 3D printing on the XY plane.
+"""
 
 from gritify.geometry import GridfinityBase
 
@@ -39,7 +43,8 @@ class GridPattern(GridfinityBase):
         
         # Vertical dividers
         for i in range(width + 1):
-            x = i * self.base_size
+            # Offset x by half thickness to ensure divider starts at x=0 for i=0
+            x = i * self.base_size + divider_thickness / 2
             divider = self.create_box(
                 center=(x, plate_depth / 2, divider_height / 2),
                 size=(divider_thickness, plate_depth, divider_height)
@@ -48,7 +53,8 @@ class GridPattern(GridfinityBase):
         
         # Horizontal dividers
         for j in range(depth + 1):
-            y = j * self.base_size
+            # Offset y by half thickness to ensure divider starts at y=0 for j=0
+            y = j * self.base_size + divider_thickness / 2
             divider = self.create_box(
                 center=(plate_width / 2, y, divider_height / 2),
                 size=(plate_width, divider_thickness, divider_height)
