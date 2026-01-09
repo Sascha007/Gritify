@@ -1,6 +1,7 @@
 """Unit tests for grid_pattern module."""
 
 import pytest
+import numpy as np
 from gritify.modules.grid_pattern import GridPattern
 
 
@@ -58,6 +59,30 @@ class TestGridPattern:
         """Test generating larger grid."""
         grid = GridPattern()
         mesh = grid.generate(width=10, depth=10, include_base=True)
+        
+        assert mesh is not None
+        assert mesh.data.size > 0
+    
+    def test_generate_half_grid_width(self):
+        """Test generating grid with half unit width."""
+        grid = GridPattern()
+        mesh = grid.generate(width=1.5, depth=1, include_base=True)
+        
+        assert mesh is not None
+        assert mesh.data.size > 0
+    
+    def test_generate_half_grid_depth(self):
+        """Test generating grid with half unit depth."""
+        grid = GridPattern()
+        mesh = grid.generate(width=1, depth=2.5, include_base=True)
+        
+        assert mesh is not None
+        assert mesh.data.size > 0
+    
+    def test_generate_half_grid_both_dimensions(self):
+        """Test generating grid with half units in both dimensions."""
+        grid = GridPattern()
+        mesh = grid.generate(width=2.5, depth=3.5, include_base=True)
         
         assert mesh is not None
         assert mesh.data.size > 0

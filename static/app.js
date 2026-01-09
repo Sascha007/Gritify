@@ -8,6 +8,24 @@ const API_BASE = window.location.origin;
 let currentDownloadUrl = null;
 let scene, camera, renderer, controls;
 let currentMesh = null;
+let wireframeMode = false;
+
+// Color constants
+const MODEL_COLOR = 0x667eea;
+
+// Material properties constants
+const SOLID_MATERIAL_PROPS = {
+    color: MODEL_COLOR,
+    specular: 0x444444,
+    shininess: 100,
+    flatShading: false
+};
+
+// UI text constants
+const WIREFRAME_BUTTON_TEXT = {
+    solid: '🔲 Wireframe View',
+    wireframe: '🔲 Solid View'
+};
 
 // Initialize Three.js viewer
 function initViewer() {
@@ -28,6 +46,8 @@ function initViewer() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
     
     // Controls
@@ -38,17 +58,32 @@ function initViewer() {
     controls.minDistance = 10;
     controls.maxDistance = 500;
     
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // Enhanced Lights for better depth perception and contrast
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight1.position.set(1, 1, 1);
+    directionalLight1.castShadow = true;
+    // Configure shadow camera bounds for better shadow quality
+    directionalLight1.shadow.camera.left = -100;
+    directionalLight1.shadow.camera.right = 100;
+    directionalLight1.shadow.camera.top = 100;
+    directionalLight1.shadow.camera.bottom = -100;
+    directionalLight1.shadow.camera.near = 0.5;
+    directionalLight1.shadow.camera.far = 500;
+    directionalLight1.shadow.mapSize.width = 2048;
+    directionalLight1.shadow.mapSize.height = 2048;
     scene.add(directionalLight1);
     
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-    directionalLight2.position.set(-1, -1, -1);
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight2.position.set(-1, 0.5, -0.5);
     scene.add(directionalLight2);
+    
+    // Add rim light for better edge definition
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    rimLight.position.set(0, -1, 0);
+    scene.add(rimLight);
     
     // Grid helper
     const gridHelper = new THREE.GridHelper(200, 20, 0xcccccc, 0xeeeeee);
@@ -99,15 +134,13 @@ async function loadSTL(filename) {
                     currentMesh.material.dispose();
                 }
                 
-                // Create material
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0x667eea,
-                    specular: 0x111111,
-                    shininess: 200
-                });
+                // Create material with improved reflection and contrast
+                const material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
                 
                 // Create mesh
                 currentMesh = new THREE.Mesh(geometry, material);
+                currentMesh.castShadow = true;
+                currentMesh.receiveShadow = true;
                 
                 // Center the geometry
                 geometry.computeBoundingBox();
@@ -117,6 +150,9 @@ async function loadSTL(filename) {
                 
                 // Add to scene
                 scene.add(currentMesh);
+                
+                // Reset wireframe mode when loading new model
+                resetWireframeState();
                 
                 // Adjust camera to fit model
                 const box = new THREE.Box3().setFromObject(currentMesh);
@@ -147,6 +183,50 @@ async function loadSTL(filename) {
             }
         );
     });
+}
+
+// Reset wireframe state to default
+function resetWireframeState() {
+    wireframeMode = false;
+    const wireframeButton = document.getElementById('wireframe-toggle');
+    if (wireframeButton) {
+        wireframeButton.textContent = WIREFRAME_BUTTON_TEXT.solid;
+    }
+}
+
+// Toggle wireframe mode
+function toggleWireframe() {
+    if (!currentMesh) return;
+    
+    wireframeMode = !wireframeMode;
+    
+    // Update button text
+    const button = document.getElementById('wireframe-toggle');
+    if (!button) return;
+    
+    button.textContent = wireframeMode ? WIREFRAME_BUTTON_TEXT.wireframe : WIREFRAME_BUTTON_TEXT.solid;
+    
+    // Dispose old material and create new one
+    const oldMaterial = currentMesh.material;
+    
+    if (wireframeMode) {
+        // Create wireframe material
+        currentMesh.material = new THREE.MeshBasicMaterial({
+            color: MODEL_COLOR,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.8
+        });
+    } else {
+        // Restore solid material
+        currentMesh.material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
+        // Restore shadow properties
+        currentMesh.castShadow = true;
+        currentMesh.receiveShadow = true;
+    }
+    
+    // Dispose old material after assignment
+    oldMaterial.dispose();
 }
 
 // Show download section
@@ -370,8 +450,8 @@ async function calculatePrintbed() {
         const data = {
             total_width: parseInt(document.getElementById('pb-width').value),
             total_depth: parseInt(document.getElementById('pb-depth').value),
-            bed_width: parseFloat(document.getElementById('pb-bed-width').value),
-            bed_depth: parseFloat(document.getElementById('pb-bed-depth').value)
+            bed_length_x: parseFloat(document.getElementById('pb-bed-length-x').value),
+            bed_length_y: parseFloat(document.getElementById('pb-bed-length-y').value)
         };
         
         const result = await apiCall('printbed/calculate', data);
@@ -390,6 +470,18 @@ async function calculatePrintbed() {
         html += `<p><strong>Grid:</strong> ${breakdown.pieces_x} × ${breakdown.pieces_y}</p>`;
         html += `<p><strong>Piece Size:</strong> ${breakdown.piece_width.toFixed(1)} × ${breakdown.piece_depth.toFixed(1)} units</p>`;
         html += `<p><strong>Piece Size (mm):</strong> ${breakdown.piece_width_mm.toFixed(1)} × ${breakdown.piece_depth_mm.toFixed(1)} mm</p>`;
+        
+        // Show half grid and spacer information
+        if (breakdown.uses_half_grids) {
+            html += '<p style="color: blue;">✓ Using half grids (0.5 unit increments)</p>';
+        }
+        
+        if (breakdown.uses_spacers) {
+            html += '<p style="color: blue;">✓ Using spacers to fill remaining space</p>';
+            html += `<p><strong>Spacer X:</strong> ${breakdown.spacer_x.toFixed(2)} units (${breakdown.spacer_x_mm.toFixed(1)} mm)</p>`;
+            html += `<p><strong>Spacer Y:</strong> ${breakdown.spacer_y.toFixed(2)} units (${breakdown.spacer_y_mm.toFixed(1)} mm)</p>`;
+        }
+        
         html += '</div>';
         
         document.getElementById('printbed-result').innerHTML = html;

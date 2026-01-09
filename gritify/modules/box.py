@@ -1,4 +1,8 @@
-"""Box generator module for Gridfinity."""
+"""Box generator module for Gridfinity.
+
+Generates storage boxes with their base positioned at the origin (0, 0, 0),
+ready for 3D printing on the XY plane.
+"""
 
 from gritify.geometry import GridfinityBase
 

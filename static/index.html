@@ -278,6 +278,30 @@
             color: #666;
             font-size: 14px;
         }
+        
+        #wireframe-toggle {
+            margin-left: 20px;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        #wireframe-toggle:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        #wireframe-toggle:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -447,6 +471,7 @@
                     <div class="info-box">
                         <h3>Printbed Calculator</h3>
                         <p>Calculate how to split large structures for your printer.</p>
+                        <p><small>Uses half grids and spacers to optimize space utilization.</small></p>
                     </div>
                     
                     <div class="form-group">
@@ -460,13 +485,13 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="pb-bed-width">Bed Width (mm)</label>
-                        <input type="number" id="pb-bed-width" min="50" max="500" value="220">
+                        <label for="pb-bed-length-x">Bed Length X (mm)</label>
+                        <input type="number" id="pb-bed-length-x" min="50" max="500" value="220">
                     </div>
                     
                     <div class="form-group">
-                        <label for="pb-bed-depth">Bed Depth (mm)</label>
-                        <input type="number" id="pb-bed-depth" min="50" max="500" value="220">
+                        <label for="pb-bed-length-y">Bed Length Y (mm)</label>
+                        <input type="number" id="pb-bed-length-y" min="50" max="500" value="220">
                     </div>
                     
                     <button id="calculate-printbed">Calculate Breakdown</button>
@@ -478,6 +503,7 @@
             <div class="viewer-panel">
                 <div class="viewer-controls">
                     <strong>🎨 3D Preview</strong> - Use mouse to rotate, scroll to zoom
+                    <button id="wireframe-toggle">🔲 Wireframe View</button>
                 </div>
                 
                 <div id="viewer"></div>

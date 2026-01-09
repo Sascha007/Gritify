@@ -1,4 +1,8 @@
-"""Inlay box generator module for Gridfinity."""
+"""Inlay box generator module for Gridfinity.
+
+Generates inlay boxes with internal divisions, positioned at the origin (0, 0, 0),
+ready for 3D printing on the XY plane.
+"""
 
 from gritify.geometry import GridfinityBase
 
