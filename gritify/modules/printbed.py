@@ -45,6 +45,8 @@ class PrintbedBreakdown(GridfinityBase):
         piece_depth_optimized = float(np.round(piece_depth * 2) / 2)
         
         # Calculate spacers needed to fill remaining space
+        # Spacer = raw_size - optimized_size (positive when we need to fill a gap)
+        # This ensures total coverage: pieces * optimized_size + (pieces-1) * spacer = total_size
         spacer_x = float(max(0, piece_width - piece_width_optimized))
         spacer_y = float(max(0, piece_depth - piece_depth_optimized))
         
