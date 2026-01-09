@@ -136,6 +136,8 @@ async function loadSTL(filename) {
                 
                 // Create mesh
                 currentMesh = new THREE.Mesh(geometry, material);
+                currentMesh.castShadow = true;
+                currentMesh.receiveShadow = true;
                 
                 // Center the geometry
                 geometry.computeBoundingBox();
@@ -201,22 +203,24 @@ function toggleWireframe() {
     
     button.textContent = wireframeMode ? WIREFRAME_BUTTON_TEXT.wireframe : WIREFRAME_BUTTON_TEXT.solid;
     
+    // Dispose old material and create new one
+    const oldMaterial = currentMesh.material;
+    
     if (wireframeMode) {
         // Create wireframe material
-        const wireframeMaterial = new THREE.MeshBasicMaterial({
+        currentMesh.material = new THREE.MeshBasicMaterial({
             color: 0x667eea,
             wireframe: true,
             transparent: true,
             opacity: 0.8
         });
-        currentMesh.material.dispose();
-        currentMesh.material = wireframeMaterial;
     } else {
         // Restore solid material
-        const solidMaterial = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
-        currentMesh.material.dispose();
-        currentMesh.material = solidMaterial;
+        currentMesh.material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
     }
+    
+    // Dispose old material after assignment
+    oldMaterial.dispose();
 }
 
 // Show download section
