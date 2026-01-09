@@ -1,15 +1,159 @@
 // Gritify Frontend JavaScript
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
 // Global variables
 const API_BASE = window.location.origin;
 let currentDownloadUrl = null;
+let scene, camera, renderer, controls;
+let currentMesh = null;
+
+// Initialize Three.js viewer
+function initViewer() {
+    const container = document.getElementById('viewer');
+    const width = container.clientWidth || 800; // Fallback dimensions
+    const height = container.clientHeight || 600;
+    
+    // Scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf5f5f5);
+    
+    // Camera
+    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(100, 100, 100);
+    camera.lookAt(0, 0, 0);
+    
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+    
+    // Controls
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = false;
+    controls.minDistance = 10;
+    controls.maxDistance = 500;
+    
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight1.position.set(1, 1, 1);
+    scene.add(directionalLight1);
+    
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    directionalLight2.position.set(-1, -1, -1);
+    scene.add(directionalLight2);
+    
+    // Grid helper
+    const gridHelper = new THREE.GridHelper(200, 20, 0xcccccc, 0xeeeeee);
+    scene.add(gridHelper);
+    
+    // Axes helper
+    const axesHelper = new THREE.AxesHelper(50);
+    scene.add(axesHelper);
+    
+    // Handle window resize
+    window.addEventListener('resize', onWindowResize);
+    
+    // Start animation loop
+    animate();
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+// Window resize handler
+function onWindowResize() {
+    const container = document.getElementById('viewer');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+}
+
+// Load and display STL file
+async function loadSTL(filename) {
+    const loader = new STLLoader();
+    const url = `${API_BASE}/api/download/${filename}`;
+    
+    return new Promise((resolve, reject) => {
+        loader.load(
+            url,
+            (geometry) => {
+                // Remove previous mesh if exists
+                if (currentMesh) {
+                    scene.remove(currentMesh);
+                    currentMesh.geometry.dispose();
+                    currentMesh.material.dispose();
+                }
+                
+                // Create material
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x667eea,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                
+                // Create mesh
+                currentMesh = new THREE.Mesh(geometry, material);
+                
+                // Center the geometry
+                geometry.computeBoundingBox();
+                const center = new THREE.Vector3();
+                geometry.boundingBox.getCenter(center);
+                geometry.translate(-center.x, -center.y, -center.z);
+                
+                // Add to scene
+                scene.add(currentMesh);
+                
+                // Adjust camera to fit model
+                const box = new THREE.Box3().setFromObject(currentMesh);
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                let cameraDistance = Math.abs(maxDim / Math.sin(fov / 2));
+                
+                // Clamp camera distance to reasonable bounds
+                cameraDistance = Math.max(10, Math.min(cameraDistance, 500));
+                
+                camera.position.set(cameraDistance, cameraDistance, cameraDistance);
+                camera.lookAt(0, 0, 0);
+                controls.update();
+                
+                // Hide placeholder
+                const placeholder = document.getElementById('viewer-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+                
+                resolve();
+            },
+            undefined, // Progress callback - removed for production
+            (error) => {
+                console.error('Error loading STL:', error);
+                reject(error);
+            }
+        );
+    });
+}
 
 // Show download section
 function showDownload(filename, downloadUrl, dimensions) {
     const downloadSection = document.getElementById('download-section');
     const filenameEl = document.getElementById('filename');
     const downloadLink = document.getElementById('download-link');
-    const placeholder = document.getElementById('viewer-placeholder');
     
     filenameEl.textContent = filename;
     downloadLink.href = downloadUrl;
@@ -25,10 +169,13 @@ function showDownload(filename, downloadUrl, dimensions) {
     }
     
     downloadSection.style.display = 'block';
-    if (placeholder) {
-        placeholder.style.display = 'none';
-    }
     currentDownloadUrl = downloadUrl;
+    
+    // Load STL in viewer
+    loadSTL(filename).catch(error => {
+        console.error('Failed to load STL preview:', error);
+        showMessage('Model generated but preview failed to load', 'error');
+    });
 }
 
 // Show message
@@ -210,6 +357,7 @@ async function calculatePrintbed() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     setupTabs();
+    initViewer();
     
     // Attach event listeners
     document.getElementById('generate-grid').addEventListener('click', generateGrid);

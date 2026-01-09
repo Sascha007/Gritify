@@ -427,11 +427,11 @@
             </div>
             
             <div class="viewer-panel">
-                <div class="viewer-note">
-                    <strong>ℹ️ 3D Preview</strong><br>
-                    3D preview rendering in the browser would normally be shown here using Three.js.
-                    Generate a model and download the STL file to view it in your favorite 3D viewer or slicer.
+                <div class="viewer-controls">
+                    <strong>🎨 3D Preview</strong> - Use mouse to rotate, scroll to zoom
                 </div>
+                
+                <div id="viewer"></div>
                 
                 <div class="download-section" id="download-section" style="display: none;">
                     <h3>✅ Model Generated Successfully!</h3>
@@ -448,7 +448,7 @@
                     <a href="#" id="download-link" class="download-button">📥 Download STL File</a>
                 </div>
                 
-                <div id="viewer-placeholder" style="text-align: center; padding: 100px 20px; color: #999;">
+                <div id="viewer-placeholder" style="text-align: center; padding: 100px 20px; color: #999; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                     <svg width="200" height="200" viewBox="0 0 200 200" style="margin: 0 auto;">
                         <rect x="50" y="50" width="100" height="100" fill="none" stroke="#ddd" stroke-width="2"/>
                         <rect x="60" y="60" width="80" height="80" fill="none" stroke="#ddd" stroke-width="2"/>
@@ -457,12 +457,20 @@
                         <line x1="50" y1="150" x2="60" y2="140" stroke="#ddd" stroke-width="2"/>
                         <line x1="150" y1="150" x2="140" y2="140" stroke="#ddd" stroke-width="2"/>
                     </svg>
-                    <p style="font-size: 18px; margin-top: 20px;">Generate a model to get started</p>
+                    <p style="font-size: 18px; margin-top: 20px;">Generate a model to see 3D preview</p>
                 </div>
             </div>
         </div>
     </div>
     
-    <script src="app.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
