@@ -1,5 +1,6 @@
 """Printbed breakdown module for Gridfinity structures."""
 
+import numpy as np
 from gritify.geometry import GridfinityBase
 
 
@@ -92,6 +93,3 @@ class PrintbedBreakdown(GridfinityBase):
         piece_depth_units = max(1, int(np.ceil(piece_depth)))
         
         return grid.generate(piece_width_units, piece_depth_units, include_base=True)
-
-
-import numpy as np
