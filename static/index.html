@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gritify - Gridfinity Structure Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+        
+        .controls-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            height: fit-content;
+        }
+        
+        .viewer-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 600px;
+        }
+        
+        .viewer-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #856404;
+        }
+        
+        .download-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .download-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .download-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .download-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .download-button.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #viewer {
+            width: 100%;
+            height: 600px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.show {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .viewer-controls {
+            margin-bottom: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔲 Gritify</h1>
+            <p class="subtitle">Gridfinity Structure Generator</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="grid">Grid</button>
+                    <button class="tab-button" data-tab="box">Box</button>
+                    <button class="tab-button" data-tab="inlay">Inlay</button>
+                    <button class="tab-button" data-tab="printbed">Printbed</button>
+                </div>
+                
+                <div id="message" class="message"></div>
+                
+                <!-- Grid Pattern Tab -->
+                <div id="grid-tab" class="tab-content active">
+                    <div class="info-box">
+                        <h3>Grid Pattern</h3>
+                        <p>Generate a basic Gridfinity grid pattern with dividers.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="grid-width">Width (units)</label>
+                        <input type="number" id="grid-width" min="1" max="20" value="3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="grid-depth">Depth (units)</label>
+                        <input type="number" id="grid-depth" min="1" max="20" value="3">
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="grid-base" checked>
+                        <label for="grid-base">Include Base Plate</label>
+                    </div>
+                    
+                    <button id="generate-grid">Generate Grid</button>
+                </div>
+                
+                <!-- Box Tab -->
+                <div id="box-tab" class="tab-content">
+                    <div class="info-box">
+                        <h3>Storage Box</h3>
+                        <p>Generate a Gridfinity-compatible storage box.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="box-width">Width (units)</label>
+                        <input type="number" id="box-width" min="1" max="20" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="box-depth">Depth (units)</label>
+                        <input type="number" id="box-depth" min="1" max="20" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="box-height">Height (units)</label>
+                        <input type="number" id="box-height" min="1" max="10" value="3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="box-wall">Wall Thickness (mm)</label>
+                        <input type="number" id="box-wall" min="0.5" max="5" step="0.1" value="2.0">
+                    </div>
+                    
+                    <button id="generate-box">Generate Box</button>
+                </div>
+                
+                <!-- Inlay Box Tab -->
+                <div id="inlay-tab" class="tab-content">
+                    <div class="info-box">
+                        <h3>Inlay Box</h3>
+                        <p>Generate a box with internal compartments.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inlay-width">Width (units)</label>
+                        <input type="number" id="inlay-width" min="1" max="20" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inlay-depth">Depth (units)</label>
+                        <input type="number" id="inlay-depth" min="1" max="20" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inlay-height">Height (units)</label>
+                        <input type="number" id="inlay-height" min="1" max="10" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inlay-div-x">X Divisions</label>
+                        <input type="number" id="inlay-div-x" min="1" max="10" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inlay-div-y">Y Divisions</label>
+                        <input type="number" id="inlay-div-y" min="1" max="10" value="2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inlay-wall">Wall Thickness (mm)</label>
+                        <input type="number" id="inlay-wall" min="0.5" max="5" step="0.1" value="1.5">
+                    </div>
+                    
+                    <button id="generate-inlay">Generate Inlay Box</button>
+                </div>
+                
+                <!-- Printbed Tab -->
+                <div id="printbed-tab" class="tab-content">
+                    <div class="info-box">
+                        <h3>Printbed Calculator</h3>
+                        <p>Calculate how to split large structures for your printer.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pb-width">Total Width (units)</label>
+                        <input type="number" id="pb-width" min="1" max="50" value="5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pb-depth">Total Depth (units)</label>
+                        <input type="number" id="pb-depth" min="1" max="50" value="5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pb-bed-width">Bed Width (mm)</label>
+                        <input type="number" id="pb-bed-width" min="50" max="500" value="220">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pb-bed-depth">Bed Depth (mm)</label>
+                        <input type="number" id="pb-bed-depth" min="50" max="500" value="220">
+                    </div>
+                    
+                    <button id="calculate-printbed">Calculate Breakdown</button>
+                    
+                    <div id="printbed-result" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+            
+            <div class="viewer-panel">
+                <div class="viewer-note">
+                    <strong>ℹ️ 3D Preview</strong><br>
+                    3D preview rendering in the browser would normally be shown here using Three.js.
+                    Generate a model and download the STL file to view it in your favorite 3D viewer or slicer.
+                </div>
+                
+                <div class="download-section" id="download-section" style="display: none;">
+                    <h3>✅ Model Generated Successfully!</h3>
+                    <p>Your Gridfinity component has been generated and is ready for download.</p>
+                    <p><strong>File:</strong> <span id="filename"></span></p>
+                    <a href="#" id="download-link" class="download-button">📥 Download STL File</a>
+                </div>
+                
+                <div id="viewer-placeholder" style="text-align: center; padding: 100px 20px; color: #999;">
+                    <svg width="200" height="200" viewBox="0 0 200 200" style="margin: 0 auto;">
+                        <rect x="50" y="50" width="100" height="100" fill="none" stroke="#ddd" stroke-width="2"/>
+                        <rect x="60" y="60" width="80" height="80" fill="none" stroke="#ddd" stroke-width="2"/>
+                        <line x1="50" y1="50" x2="60" y2="60" stroke="#ddd" stroke-width="2"/>
+                        <line x1="150" y1="50" x2="140" y2="60" stroke="#ddd" stroke-width="2"/>
+                        <line x1="50" y1="150" x2="60" y2="140" stroke="#ddd" stroke-width="2"/>
+                        <line x1="150" y1="150" x2="140" y2="140" stroke="#ddd" stroke-width="2"/>
+                    </svg>
+                    <p style="font-size: 18px; margin-top: 20px;">Generate a model to get started</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
