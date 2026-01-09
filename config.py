@@ -14,6 +14,7 @@ PORT = int(os.environ.get('PORT', 5000))
 GRIDFINITY_BASE_SIZE = 42.0  # Base grid size
 GRIDFINITY_HEIGHT_UNIT = 7.0  # Height unit
 GRIDFINITY_TOLERANCE = 0.5  # Tolerance for fit
+GRIDFINITY_GRID_BASE_HEIGHT = 5.0  # Grid base height
 
 # Generated files directory
 GENERATED_DIR = os.path.join(BASE_DIR, 'generated')
