@@ -28,6 +28,16 @@ const WIREFRAME_BUTTON_TEXT = {
     wireframe: '🔲 Solid View'
 };
 
+// Helper function to clean up edge geometry
+function cleanupEdges() {
+    if (currentEdges) {
+        scene.remove(currentEdges);
+        currentEdges.geometry.dispose();
+        currentEdges.material.dispose();
+        currentEdges = null;
+    }
+}
+
 // Initialize Three.js viewer
 function initViewer() {
     const container = document.getElementById('viewer');
@@ -136,12 +146,7 @@ async function loadSTL(filename) {
                 }
                 
                 // Remove previous edges if exists
-                if (currentEdges) {
-                    scene.remove(currentEdges);
-                    currentEdges.geometry.dispose();
-                    currentEdges.material.dispose();
-                    currentEdges = null;
-                }
+                cleanupEdges();
                 
                 // Create material with improved reflection and contrast
                 const material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
@@ -231,8 +236,7 @@ function toggleWireframe() {
         // Add edge geometry to clearly show surfaces and distinguish from open areas
         const edges = new THREE.EdgesGeometry(currentMesh.geometry, 15); // threshold angle of 15 degrees
         const lineMaterial = new THREE.LineBasicMaterial({ 
-            color: 0x000000,
-            linewidth: 2
+            color: 0x000000
         });
         currentEdges = new THREE.LineSegments(edges, lineMaterial);
         scene.add(currentEdges);
@@ -244,12 +248,7 @@ function toggleWireframe() {
         currentMesh.receiveShadow = true;
         
         // Remove edges
-        if (currentEdges) {
-            scene.remove(currentEdges);
-            currentEdges.geometry.dispose();
-            currentEdges.material.dispose();
-            currentEdges = null;
-        }
+        cleanupEdges();
     }
     
     // Dispose old material after assignment
