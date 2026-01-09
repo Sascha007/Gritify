@@ -41,28 +41,28 @@ class PrintbedBreakdown(GridfinityBase):
         
         # Optimize piece sizes using half grids (0.5 increments)
         # Round to nearest 0.5 for better space utilization
-        piece_width_optimized = np.round(piece_width * 2) / 2
-        piece_depth_optimized = np.round(piece_depth * 2) / 2
+        piece_width_optimized = float(np.round(piece_width * 2) / 2)
+        piece_depth_optimized = float(np.round(piece_depth * 2) / 2)
         
         # Calculate spacers needed to fill remaining space
-        spacer_x = max(0, piece_width - piece_width_optimized)
-        spacer_y = max(0, piece_depth - piece_depth_optimized)
+        spacer_x = float(max(0, piece_width - piece_width_optimized))
+        spacer_y = float(max(0, piece_depth - piece_depth_optimized))
         
         breakdown = {
-            'total_pieces': pieces_x * pieces_y,
-            'pieces_x': pieces_x,
-            'pieces_y': pieces_y,
-            'piece_width': piece_width_optimized,
-            'piece_depth': piece_depth_optimized,
-            'piece_width_mm': piece_width_optimized * self.base_size,
-            'piece_depth_mm': piece_depth_optimized * self.base_size,
-            'spacer_x': spacer_x,
-            'spacer_y': spacer_y,
-            'spacer_x_mm': spacer_x * self.base_size,
-            'spacer_y_mm': spacer_y * self.base_size,
-            'uses_half_grids': (piece_width_optimized % 1 != 0) or (piece_depth_optimized % 1 != 0),
-            'uses_spacers': spacer_x > 0.01 or spacer_y > 0.01,
-            'fits_bed': pieces_x == 1 and pieces_y == 1,
+            'total_pieces': int(pieces_x * pieces_y),
+            'pieces_x': int(pieces_x),
+            'pieces_y': int(pieces_y),
+            'piece_width': float(piece_width_optimized),
+            'piece_depth': float(piece_depth_optimized),
+            'piece_width_mm': float(piece_width_optimized * self.base_size),
+            'piece_depth_mm': float(piece_depth_optimized * self.base_size),
+            'spacer_x': float(spacer_x),
+            'spacer_y': float(spacer_y),
+            'spacer_x_mm': float(spacer_x * self.base_size),
+            'spacer_y_mm': float(spacer_y * self.base_size),
+            'uses_half_grids': bool((piece_width_optimized % 1 != 0) or (piece_depth_optimized % 1 != 0)),
+            'uses_spacers': bool(spacer_x > 0.01 or spacer_y > 0.01),
+            'fits_bed': bool(pieces_x == 1 and pieces_y == 1),
             'pieces': []
         }
         
@@ -71,12 +71,12 @@ class PrintbedBreakdown(GridfinityBase):
             for j in range(pieces_y):
                 piece = {
                     'id': f'{i}_{j}',
-                    'x_index': i,
-                    'y_index': j,
-                    'width': piece_width_optimized,
-                    'depth': piece_depth_optimized,
-                    'spacer_x': spacer_x if i < pieces_x - 1 else 0,
-                    'spacer_y': spacer_y if j < pieces_y - 1 else 0
+                    'x_index': int(i),
+                    'y_index': int(j),
+                    'width': float(piece_width_optimized),
+                    'depth': float(piece_depth_optimized),
+                    'spacer_x': float(spacer_x if i < pieces_x - 1 else 0),
+                    'spacer_y': float(spacer_y if j < pieces_y - 1 else 0)
                 }
                 breakdown['pieces'].append(piece)
         
