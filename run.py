@@ -11,6 +11,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app import app
+from config import HOST, PORT, DEBUG
 
 if __name__ == '__main__':
     print("""
@@ -27,6 +28,6 @@ if __name__ == '__main__':
     """)
     
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host=HOST, port=PORT, debug=DEBUG)
     except KeyboardInterrupt:
         print("\n\n✅ Server stopped. Goodbye!")

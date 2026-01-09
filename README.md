@@ -94,6 +94,20 @@ Edit `config.py` to customize:
 - Maximum dimensions for safety
 - Generated files directory
 
+### Environment Variables
+
+You can configure the application using environment variables:
+
+- `HOST` - Server host address (default: `127.0.0.1` for security)
+- `PORT` - Server port (default: `5000`)
+- `DEBUG` - Enable debug mode (default: `True`)
+
+**Security Note:** The default host is `127.0.0.1` (localhost) which only allows local connections. To allow external connections (e.g., in a container or production environment), set `HOST=0.0.0.0`:
+
+```bash
+HOST=0.0.0.0 python run.py
+```
+
 ## Gridfinity Standard
 
 Gritify follows the Gridfinity standard specifications:
