@@ -279,7 +279,8 @@ class TestStorageBoxGenerationEndpoint:
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['success'] is True
-        # Should use height_cm (35mm) not height_units (35mm)
+        # Should use height_cm (3.5cm = 35mm) not height_units (5 units = 35mm)
+        # Both happen to equal 35mm, but height_cm takes precedence
         assert data['dimensions']['z'] == 35.0
     
     def test_generate_storage_box_invalid_dimensions(self, client):
