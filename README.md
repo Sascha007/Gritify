@@ -101,6 +101,72 @@ Gritify follows the Gridfinity standard specifications:
 - Height unit: 7mm
 - Tolerance: 0.5mm
 
+## Testing
+
+### Running Tests
+
+The project includes comprehensive unit and integration tests with 94% code coverage.
+
+#### Install Test Dependencies
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+#### Run All Tests
+
+```bash
+pytest tests/ -v
+```
+
+#### Run Tests with Coverage Report
+
+```bash
+pytest tests/ -v --cov=gritify --cov=app --cov-report=term --cov-report=html
+```
+
+This will generate:
+- Terminal coverage report
+- HTML coverage report in `htmlcov/` directory
+
+#### Run Specific Test Categories
+
+```bash
+# Run only unit tests (modules)
+pytest tests/test_geometry.py tests/test_grid_pattern.py tests/test_box.py tests/test_inlay_box.py tests/test_printbed.py -v
+
+# Run only integration tests (API)
+pytest tests/test_api.py -v
+```
+
+### Test Structure
+
+```
+tests/
+├── test_geometry.py       # Tests for GridfinityBase class (7 tests)
+├── test_grid_pattern.py   # Tests for GridPattern module (7 tests)
+├── test_box.py            # Tests for Box module (8 tests)
+├── test_inlay_box.py      # Tests for InlayBox module (9 tests)
+├── test_printbed.py       # Tests for PrintbedBreakdown module (10 tests)
+└── test_api.py            # Integration tests for Flask API (21 tests)
+```
+
+**Total: 62 tests with 94% code coverage**
+
+### Continuous Integration
+
+The project uses GitHub Actions for automated testing. Tests run automatically on:
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop` branches
+- Manual workflow dispatch
+
+The CI workflow:
+1. Tests against Python 3.8, 3.9, 3.10, 3.11, and 3.12
+2. Runs all unit and integration tests
+3. Generates code coverage reports
+4. Uploads coverage to Codecov (if configured)
+5. Comments PR with coverage percentage
+
 ## API Endpoints
 
 - `POST /api/generate/grid` - Generate grid pattern
