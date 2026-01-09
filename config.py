@@ -7,7 +7,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Flask configuration
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-HOST = os.environ.get('HOST', '0.0.0.0')
+HOST = os.environ.get('HOST', '127.0.0.1')
 PORT = int(os.environ.get('PORT', 5000))
 
 # Gridfinity standard dimensions (in mm)
