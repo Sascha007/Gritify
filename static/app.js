@@ -10,6 +10,15 @@ let scene, camera, renderer, controls;
 let currentMesh = null;
 let wireframeMode = false;
 
+// Material properties constants
+const SOLID_MATERIAL_PROPS = {
+    color: 0x667eea,
+    specular: 0x444444,
+    shininess: 100,
+    flatShading: false,
+    reflectivity: 0.5
+};
+
 // Initialize Three.js viewer
 function initViewer() {
     const container = document.getElementById('viewer');
@@ -107,13 +116,7 @@ async function loadSTL(filename) {
                 }
                 
                 // Create material with improved reflection and contrast
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0x667eea,
-                    specular: 0x444444,
-                    shininess: 100,
-                    flatShading: false,
-                    reflectivity: 0.5
-                });
+                const material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
                 
                 // Create mesh
                 currentMesh = new THREE.Mesh(geometry, material);
@@ -126,6 +129,13 @@ async function loadSTL(filename) {
                 
                 // Add to scene
                 scene.add(currentMesh);
+                
+                // Reset wireframe mode when loading new model
+                wireframeMode = false;
+                const wireframeButton = document.getElementById('wireframe-toggle');
+                if (wireframeButton) {
+                    wireframeButton.textContent = '🔲 Wireframe View';
+                }
                 
                 // Adjust camera to fit model
                 const box = new THREE.Box3().setFromObject(currentMesh);
@@ -180,13 +190,7 @@ function toggleWireframe() {
         currentMesh.material = wireframeMaterial;
     } else {
         // Restore solid material
-        const solidMaterial = new THREE.MeshPhongMaterial({
-            color: 0x667eea,
-            specular: 0x444444,
-            shininess: 100,
-            flatShading: false,
-            reflectivity: 0.5
-        });
+        const solidMaterial = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
         currentMesh.material.dispose();
         currentMesh.material = solidMaterial;
     }
