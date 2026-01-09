@@ -6,6 +6,7 @@ ensuring they are ready for 3D printing with the base laying on the XY plane.
 
 import numpy as np
 from stl import mesh
+import math
 
 
 class GridfinityBase:
@@ -108,3 +109,162 @@ class GridfinityBase:
             offset += m.data.size
         
         return combined
+
+
+def create_rounded_rectangle_path(x, y, w, h, r, segments_per_arc=16):
+    """
+    Create a 2D path for a rounded rectangle with closed structure.
+    
+    This function generates a closed path consisting of lines and arcs
+    for a rounded rectangle, following Gridfinity outline specifications.
+    
+    Args:
+        x: X coordinate of bottom-left corner
+        y: Y coordinate of bottom-left corner
+        w: Width of rectangle
+        h: Height of rectangle
+        r: Corner radius
+        segments_per_arc: Number of segments to approximate each quarter-circle arc (default 16)
+    
+    Returns:
+        List of (x, y) coordinate tuples representing the closed path
+        
+    Note:
+        - Radius is automatically clamped to min(r, w/2, h/2)
+        - Path is closed (first point equals last point)
+        - Path runs clockwise from bottom-left
+    """
+    # Clamp radius to ensure it doesn't exceed half the width or height
+    r = min(r, w / 2, h / 2)
+    
+    path = []
+    
+    # Start at bottom-left corner, after the arc
+    # Bottom edge: move right along bottom
+    path.append((x + r, y))
+    path.append((x + w - r, y))
+    
+    # Bottom-right arc (from 270° to 360°, or -90° to 0°)
+    # Skip i=0 to avoid duplicate with previous point
+    cx, cy = x + w - r, y + r
+    for i in range(1, segments_per_arc + 1):
+        angle = -math.pi / 2 + (math.pi / 2) * (i / segments_per_arc)
+        px = cx + r * math.cos(angle)
+        py = cy + r * math.sin(angle)
+        path.append((px, py))
+    
+    # Right edge: move up along right side
+    path.append((x + w, y + h - r))
+    
+    # Top-right arc (from 0° to 90°)
+    # Skip i=0 to avoid duplicate with previous point
+    cx, cy = x + w - r, y + h - r
+    for i in range(1, segments_per_arc + 1):
+        angle = 0 + (math.pi / 2) * (i / segments_per_arc)
+        px = cx + r * math.cos(angle)
+        py = cy + r * math.sin(angle)
+        path.append((px, py))
+    
+    # Top edge: move left along top
+    path.append((x + r, y + h))
+    
+    # Top-left arc (from 90° to 180°)
+    # Skip i=0 to avoid duplicate with previous point
+    cx, cy = x + r, y + h - r
+    for i in range(1, segments_per_arc + 1):
+        angle = math.pi / 2 + (math.pi / 2) * (i / segments_per_arc)
+        px = cx + r * math.cos(angle)
+        py = cy + r * math.sin(angle)
+        path.append((px, py))
+    
+    # Left edge: move down along left side
+    path.append((x, y + r))
+    
+    # Bottom-left arc (from 180° to 270°)
+    # Skip i=0 to avoid duplicate with previous point
+    cx, cy = x + r, y + r
+    for i in range(1, segments_per_arc + 1):
+        angle = math.pi + (math.pi / 2) * (i / segments_per_arc)
+        px = cx + r * math.cos(angle)
+        py = cy + r * math.sin(angle)
+        path.append((px, py))
+    
+    # Close the path by returning to start
+    path.append((x + r, y))
+    
+    return path
+
+
+def create_baseplate_cell_outline(i, j, grid_pitch=42.0, r_baseplate=8.0, segments_per_arc=16):
+    """
+    Create a 2D outline path for a single baseplate cell.
+    
+    Args:
+        i: Cell index in X direction (0-based)
+        j: Cell index in Y direction (0-based)
+        grid_pitch: Grid pitch in mm (default 42.0)
+        r_baseplate: Corner radius in mm (default 8.0)
+        segments_per_arc: Number of segments per quarter-circle (default 16)
+    
+    Returns:
+        List of (x, y) coordinate tuples representing the closed cell outline
+        
+    Note:
+        Each baseplate cell is a rounded rectangle:
+        - Located at (i * grid_pitch, j * grid_pitch)
+        - Size: grid_pitch × grid_pitch
+        - Corner radius: r_baseplate
+    """
+    cell_origin_x = i * grid_pitch
+    cell_origin_y = j * grid_pitch
+    
+    return create_rounded_rectangle_path(
+        x=cell_origin_x,
+        y=cell_origin_y,
+        w=grid_pitch,
+        h=grid_pitch,
+        r=r_baseplate,
+        segments_per_arc=segments_per_arc
+    )
+
+
+def create_bin_footprint_outline(i, j, nx, ny, grid_pitch=42.0, 
+                                 xy_clearance_per_side=0.25, r_bin=3.75, 
+                                 segments_per_arc=16):
+    """
+    Create a 2D outline path for a bin/block footprint spanning multiple cells.
+    
+    Args:
+        i: Starting cell index in X direction (0-based)
+        j: Starting cell index in Y direction (0-based)
+        nx: Number of cells to span in X direction
+        ny: Number of cells to span in Y direction
+        grid_pitch: Grid pitch in mm (default 42.0)
+        xy_clearance_per_side: Clearance per side in mm (default 0.25)
+        r_bin: Corner radius in mm (default 3.75)
+        segments_per_arc: Number of segments per quarter-circle (default 16)
+    
+    Returns:
+        List of (x, y) coordinate tuples representing the closed bin footprint
+        
+    Note:
+        A bin spanning (nx, ny) cells placed at grid position (i, j):
+        - x = i * grid_pitch + xy_clearance_per_side
+        - y = j * grid_pitch + xy_clearance_per_side
+        - w = nx * grid_pitch - 2 * xy_clearance_per_side
+        - h = ny * grid_pitch - 2 * xy_clearance_per_side
+        - r = r_bin (applied only to outermost corners)
+    """
+    x = i * grid_pitch + xy_clearance_per_side
+    y = j * grid_pitch + xy_clearance_per_side
+    w = nx * grid_pitch - 2 * xy_clearance_per_side
+    h = ny * grid_pitch - 2 * xy_clearance_per_side
+    
+    return create_rounded_rectangle_path(
+        x=x,
+        y=y,
+        w=w,
+        h=h,
+        r=r_bin,
+        segments_per_arc=segments_per_arc
+    )
