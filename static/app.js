@@ -19,6 +19,12 @@ const SOLID_MATERIAL_PROPS = {
     reflectivity: 0.5
 };
 
+// UI text constants
+const WIREFRAME_BUTTON_TEXT = {
+    solid: '🔲 Wireframe View',
+    wireframe: '🔲 Solid View'
+};
+
 // Initialize Three.js viewer
 function initViewer() {
     const container = document.getElementById('viewer');
@@ -38,6 +44,8 @@ function initViewer() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
     
     // Controls
@@ -134,7 +142,7 @@ async function loadSTL(filename) {
                 wireframeMode = false;
                 const wireframeButton = document.getElementById('wireframe-toggle');
                 if (wireframeButton) {
-                    wireframeButton.textContent = '🔲 Wireframe View';
+                    wireframeButton.textContent = WIREFRAME_BUTTON_TEXT.solid;
                 }
                 
                 // Adjust camera to fit model
@@ -176,7 +184,7 @@ function toggleWireframe() {
     
     // Update button text
     const button = document.getElementById('wireframe-toggle');
-    button.textContent = wireframeMode ? '🔲 Solid View' : '🔲 Wireframe View';
+    button.textContent = wireframeMode ? WIREFRAME_BUTTON_TEXT.wireframe : WIREFRAME_BUTTON_TEXT.solid;
     
     if (wireframeMode) {
         // Create wireframe material
