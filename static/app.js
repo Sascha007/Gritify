@@ -8,6 +8,7 @@ const API_BASE = window.location.origin;
 let currentDownloadUrl = null;
 let scene, camera, renderer, controls;
 let currentMesh = null;
+let wireframeMode = false;
 
 // Initialize Three.js viewer
 function initViewer() {
@@ -38,17 +39,23 @@ function initViewer() {
     controls.minDistance = 10;
     controls.maxDistance = 500;
     
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // Enhanced Lights for better depth perception and contrast
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight1.position.set(1, 1, 1);
+    directionalLight1.castShadow = true;
     scene.add(directionalLight1);
     
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-    directionalLight2.position.set(-1, -1, -1);
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight2.position.set(-1, 0.5, -0.5);
     scene.add(directionalLight2);
+    
+    // Add rim light for better edge definition
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    rimLight.position.set(0, -1, 0);
+    scene.add(rimLight);
     
     // Grid helper
     const gridHelper = new THREE.GridHelper(200, 20, 0xcccccc, 0xeeeeee);
@@ -99,11 +106,13 @@ async function loadSTL(filename) {
                     currentMesh.material.dispose();
                 }
                 
-                // Create material
+                // Create material with improved reflection and contrast
                 const material = new THREE.MeshPhongMaterial({
                     color: 0x667eea,
-                    specular: 0x111111,
-                    shininess: 200
+                    specular: 0x444444,
+                    shininess: 100,
+                    flatShading: false,
+                    reflectivity: 0.5
                 });
                 
                 // Create mesh
@@ -147,6 +156,40 @@ async function loadSTL(filename) {
             }
         );
     });
+}
+
+// Toggle wireframe mode
+function toggleWireframe() {
+    if (!currentMesh) return;
+    
+    wireframeMode = !wireframeMode;
+    
+    // Update button text
+    const button = document.getElementById('wireframe-toggle');
+    button.textContent = wireframeMode ? '🔲 Solid View' : '🔲 Wireframe View';
+    
+    if (wireframeMode) {
+        // Create wireframe material
+        const wireframeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x667eea,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.8
+        });
+        currentMesh.material.dispose();
+        currentMesh.material = wireframeMaterial;
+    } else {
+        // Restore solid material
+        const solidMaterial = new THREE.MeshPhongMaterial({
+            color: 0x667eea,
+            specular: 0x444444,
+            shininess: 100,
+            flatShading: false,
+            reflectivity: 0.5
+        });
+        currentMesh.material.dispose();
+        currentMesh.material = solidMaterial;
+    }
 }
 
 // Show download section
@@ -364,4 +407,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('generate-box').addEventListener('click', generateBox);
     document.getElementById('generate-inlay').addEventListener('click', generateInlay);
     document.getElementById('calculate-printbed').addEventListener('click', calculatePrintbed);
+    document.getElementById('wireframe-toggle').addEventListener('click', toggleWireframe);
 });

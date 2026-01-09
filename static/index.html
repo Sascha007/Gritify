@@ -278,6 +278,18 @@
             color: #666;
             font-size: 14px;
         }
+        
+        #wireframe-toggle:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        #wireframe-toggle:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -429,6 +441,7 @@
             <div class="viewer-panel">
                 <div class="viewer-controls">
                     <strong>🎨 3D Preview</strong> - Use mouse to rotate, scroll to zoom
+                    <button id="wireframe-toggle" style="margin-left: 20px; padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s;">🔲 Wireframe View</button>
                 </div>
                 
                 <div id="viewer"></div>
