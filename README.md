@@ -1,6 +1,6 @@
 # Gritify
 
-A modular Python web application for generating 3D printable Gridfinity structures with real-time 3D preview in your browser.
+A modular Python web application for generating 3D printable Gridfinity structures with real-time 3D preview in your browser using Three.js.
 
 ## Features
 
@@ -9,6 +9,7 @@ A modular Python web application for generating 3D printable Gridfinity structur
 - 🗂️ **Inlay Box Generator** - Create compartmentalized boxes with internal divisions
 - 🖨️ **Printbed Calculator** - Calculate how to split large structures to fit your printer bed
 - 🎨 **Web Interface** - Modern, intuitive web UI with responsive design
+- 🎯 **3D Preview** - Interactive STL preview in browser with Three.js (rotate, zoom, pan)
 - 📥 **STL Export** - Download generated models as STL files ready for slicing
 
 ## Installation
@@ -56,7 +57,22 @@ http://localhost:5000
    - Select a component type (Grid, Box, Inlay, or Printbed)
    - Configure dimensions and parameters
    - Click "Generate" to create the 3D model
+   - **View the 3D preview** - Interactive STL preview appears automatically
+     - Rotate: Click and drag with mouse
+     - Zoom: Scroll wheel
+     - Pan: Right-click and drag
    - Download the STL file
+
+### 3D Preview
+
+The web interface includes an interactive 3D viewer powered by Three.js that automatically displays generated models:
+
+- **Real-time rendering** - See your model immediately after generation
+- **Interactive controls** - Rotate, zoom, and pan to inspect from any angle
+- **Automatic camera positioning** - Model is automatically centered and sized to fit
+- **Professional visualization** - Proper lighting and materials for clear model viewing
+
+No additional software needed - everything runs directly in your modern web browser!
 
 ### Generated Files
 
