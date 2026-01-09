@@ -8,6 +8,7 @@ const API_BASE = window.location.origin;
 let currentDownloadUrl = null;
 let scene, camera, renderer, controls;
 let currentMesh = null;
+let currentEdges = null;
 let wireframeMode = false;
 
 // Color constants
@@ -134,6 +135,14 @@ async function loadSTL(filename) {
                     currentMesh.material.dispose();
                 }
                 
+                // Remove previous edges if exists
+                if (currentEdges) {
+                    scene.remove(currentEdges);
+                    currentEdges.geometry.dispose();
+                    currentEdges.material.dispose();
+                    currentEdges = null;
+                }
+                
                 // Create material with improved reflection and contrast
                 const material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
                 
@@ -210,19 +219,37 @@ function toggleWireframe() {
     const oldMaterial = currentMesh.material;
     
     if (wireframeMode) {
-        // Create wireframe material
+        // Create semi-transparent surface for wireframe mode
         currentMesh.material = new THREE.MeshBasicMaterial({
             color: MODEL_COLOR,
-            wireframe: true,
+            wireframe: false,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.15,
+            side: THREE.DoubleSide
         });
+        
+        // Add edge geometry to clearly show surfaces and distinguish from open areas
+        const edges = new THREE.EdgesGeometry(currentMesh.geometry, 15); // threshold angle of 15 degrees
+        const lineMaterial = new THREE.LineBasicMaterial({ 
+            color: 0x000000,
+            linewidth: 2
+        });
+        currentEdges = new THREE.LineSegments(edges, lineMaterial);
+        scene.add(currentEdges);
     } else {
         // Restore solid material
         currentMesh.material = new THREE.MeshPhongMaterial(SOLID_MATERIAL_PROPS);
         // Restore shadow properties
         currentMesh.castShadow = true;
         currentMesh.receiveShadow = true;
+        
+        // Remove edges
+        if (currentEdges) {
+            scene.remove(currentEdges);
+            currentEdges.geometry.dispose();
+            currentEdges.material.dispose();
+            currentEdges = null;
+        }
     }
     
     // Dispose old material after assignment
@@ -505,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('generate-storage').addEventListener('click', generateStorageBox);
     document.getElementById('generate-inlay').addEventListener('click', generateInlay);
     document.getElementById('calculate-printbed').addEventListener('click', calculatePrintbed);
+    document.getElementById('wireframe-toggle').addEventListener('click', toggleWireframe);
     
     // Height type toggle for storage box
     document.getElementById('storage-height-type').addEventListener('change', toggleHeightInput);
