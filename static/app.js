@@ -312,6 +312,54 @@ async function generateInlay() {
     }
 }
 
+// Generate Storage Box
+async function generateStorageBox() {
+    const button = document.getElementById('generate-storage');
+    button.disabled = true;
+    button.textContent = 'Generating...';
+    
+    try {
+        const heightType = document.getElementById('storage-height-type').value;
+        const data = {
+            width: parseInt(document.getElementById('storage-width').value),
+            depth: parseInt(document.getElementById('storage-depth').value),
+            wall_thickness: parseFloat(document.getElementById('storage-wall').value),
+            flat_inside: document.getElementById('storage-flat-inside').checked
+        };
+        
+        if (heightType === 'cm') {
+            data.height_cm = parseFloat(document.getElementById('storage-height-cm').value);
+        } else {
+            data.height_units = parseInt(document.getElementById('storage-height-units').value);
+        }
+        
+        const result = await apiCall('generate/storage_box', data);
+        
+        showMessage('Storage box generated successfully!', 'success');
+        showDownload(result.filename, result.download_url, result.dimensions);
+    } catch (error) {
+        showMessage(`Error: ${error.message}`, 'error');
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Generate Storage Box';
+    }
+}
+
+// Toggle height input based on type selection
+function toggleHeightInput() {
+    const heightType = document.getElementById('storage-height-type').value;
+    const unitsGroup = document.getElementById('storage-height-units-group');
+    const cmGroup = document.getElementById('storage-height-cm-group');
+    
+    if (heightType === 'cm') {
+        unitsGroup.style.display = 'none';
+        cmGroup.style.display = 'block';
+    } else {
+        unitsGroup.style.display = 'block';
+        cmGroup.style.display = 'none';
+    }
+}
+
 // Calculate Printbed Breakdown
 async function calculatePrintbed() {
     const button = document.getElementById('calculate-printbed');
@@ -362,6 +410,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach event listeners
     document.getElementById('generate-grid').addEventListener('click', generateGrid);
     document.getElementById('generate-box').addEventListener('click', generateBox);
+    document.getElementById('generate-storage').addEventListener('click', generateStorageBox);
     document.getElementById('generate-inlay').addEventListener('click', generateInlay);
     document.getElementById('calculate-printbed').addEventListener('click', calculatePrintbed);
+    
+    // Height type toggle for storage box
+    document.getElementById('storage-height-type').addEventListener('change', toggleHeightInput);
 });

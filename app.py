@@ -13,6 +13,7 @@ from gritify.modules.grid_pattern import GridPattern
 from gritify.modules.box import Box
 from gritify.modules.inlay_box import InlayBox
 from gritify.modules.printbed import PrintbedBreakdown
+from gritify.modules.storage_box import StorageBox
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
@@ -148,6 +149,75 @@ def generate_inlay():
         size_x = width * GRIDFINITY_BASE_SIZE
         size_y = depth * GRIDFINITY_BASE_SIZE
         size_z = height * GRIDFINITY_HEIGHT_UNIT
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'download_url': f'/api/download/{filename}',
+            'dimensions': {
+                'x': size_x,
+                'y': size_y,
+                'z': size_z,
+                'units': 'mm'
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/generate/storage_box', methods=['POST'])
+def generate_storage_box():
+    """Generate a Gridfinity-compatible storage box."""
+    try:
+        data = request.json
+        width = int(data.get('width', 1))
+        depth = int(data.get('depth', 1))
+        height_cm = data.get('height_cm')
+        height_units = data.get('height_units')
+        wall_thickness = float(data.get('wall_thickness', 2.0))
+        flat_inside = data.get('flat_inside', True)
+        
+        # Validate inputs
+        if width < 1 or width > MAX_GRID_WIDTH:
+            return jsonify({'error': f'Width must be between 1 and {MAX_GRID_WIDTH}'}), 400
+        if depth < 1 or depth > MAX_GRID_DEPTH:
+            return jsonify({'error': f'Depth must be between 1 and {MAX_GRID_DEPTH}'}), 400
+        
+        # Convert height_cm to float if provided
+        if height_cm is not None:
+            height_cm = float(height_cm)
+            if height_cm < 0.7 or height_cm > 20.0:
+                return jsonify({'error': 'Height in cm must be between 0.7 and 20.0'}), 400
+        elif height_units is not None:
+            height_units = int(height_units)
+            if height_units < 1 or height_units > MAX_HEIGHT_UNITS:
+                return jsonify({'error': f'Height units must be between 1 and {MAX_HEIGHT_UNITS}'}), 400
+        
+        # Generate storage box
+        storage_box = StorageBox()
+        mesh_obj = storage_box.generate(
+            width, depth, 
+            height_cm=height_cm, 
+            height_units=height_units,
+            wall_thickness=wall_thickness,
+            flat_inside=flat_inside
+        )
+        
+        # Save to file
+        height_str = f'{height_cm}cm' if height_cm else f'{height_units}u'
+        filename = f'storage_box_{width}x{depth}x{height_str}_{uuid.uuid4().hex[:8]}.stl'
+        filepath = os.path.join(GENERATED_DIR, filename)
+        mesh_obj.save(filepath)
+        
+        # Calculate dimensions
+        size_x = width * GRIDFINITY_BASE_SIZE
+        size_y = depth * GRIDFINITY_BASE_SIZE
+        if height_cm:
+            size_z = height_cm * 10.0
+        elif height_units:
+            size_z = height_units * GRIDFINITY_HEIGHT_UNIT
+        else:
+            size_z = GRIDFINITY_HEIGHT_UNIT
         
         return jsonify({
             'success': True,
