@@ -171,12 +171,12 @@ def calculate_printbed():
         data = request.json
         total_width = int(data.get('total_width', 1))
         total_depth = int(data.get('total_depth', 1))
-        bed_width = float(data.get('bed_width', 220.0))
-        bed_depth = float(data.get('bed_depth', 220.0))
+        bed_length_x = float(data.get('bed_length_x', 220.0))
+        bed_length_y = float(data.get('bed_length_y', 220.0))
         
         # Calculate breakdown
         breakdown = PrintbedBreakdown()
-        result = breakdown.calculate_breakdown(total_width, total_depth, bed_width, bed_depth)
+        result = breakdown.calculate_breakdown(total_width, total_depth, bed_length_x, bed_length_y)
         
         return jsonify({
             'success': True,

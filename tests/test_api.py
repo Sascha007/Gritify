@@ -216,7 +216,7 @@ class TestPrintbedCalculationEndpoint:
         """Test printbed calculation when structure fits."""
         response = client.post('/api/printbed/calculate',
                              json={'total_width': 4, 'total_depth': 4,
-                                   'bed_width': 250.0, 'bed_depth': 250.0})
+                                   'bed_length_x': 250.0, 'bed_length_y': 250.0})
         
         assert response.status_code == 200
         data = json.loads(response.data)
@@ -228,7 +228,7 @@ class TestPrintbedCalculationEndpoint:
         """Test printbed calculation when structure needs splitting."""
         response = client.post('/api/printbed/calculate',
                              json={'total_width': 10, 'total_depth': 10,
-                                   'bed_width': 220.0, 'bed_depth': 220.0})
+                                   'bed_length_x': 220.0, 'bed_length_y': 220.0})
         
         assert response.status_code == 200
         data = json.loads(response.data)
@@ -244,10 +244,10 @@ class TestPrintbedCalculationEndpoint:
             (15, 3, 250.0, 250.0)
         ]
         
-        for width, depth, bed_w, bed_d in configs:
+        for width, depth, bed_x, bed_y in configs:
             response = client.post('/api/printbed/calculate',
                                  json={'total_width': width, 'total_depth': depth,
-                                       'bed_width': bed_w, 'bed_depth': bed_d})
+                                       'bed_length_x': bed_x, 'bed_length_y': bed_y})
             assert response.status_code == 200
 
 

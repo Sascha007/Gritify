@@ -322,8 +322,8 @@ async function calculatePrintbed() {
         const data = {
             total_width: parseInt(document.getElementById('pb-width').value),
             total_depth: parseInt(document.getElementById('pb-depth').value),
-            bed_width: parseFloat(document.getElementById('pb-bed-width').value),
-            bed_depth: parseFloat(document.getElementById('pb-bed-depth').value)
+            bed_length_x: parseFloat(document.getElementById('pb-bed-length-x').value),
+            bed_length_y: parseFloat(document.getElementById('pb-bed-length-y').value)
         };
         
         const result = await apiCall('printbed/calculate', data);
@@ -342,6 +342,18 @@ async function calculatePrintbed() {
         html += `<p><strong>Grid:</strong> ${breakdown.pieces_x} × ${breakdown.pieces_y}</p>`;
         html += `<p><strong>Piece Size:</strong> ${breakdown.piece_width.toFixed(1)} × ${breakdown.piece_depth.toFixed(1)} units</p>`;
         html += `<p><strong>Piece Size (mm):</strong> ${breakdown.piece_width_mm.toFixed(1)} × ${breakdown.piece_depth_mm.toFixed(1)} mm</p>`;
+        
+        // Show half grid and spacer information
+        if (breakdown.uses_half_grids) {
+            html += '<p style="color: blue;">✓ Using half grids (0.5 unit increments)</p>';
+        }
+        
+        if (breakdown.uses_spacers) {
+            html += '<p style="color: blue;">✓ Using spacers to fill remaining space</p>';
+            html += `<p><strong>Spacer X:</strong> ${breakdown.spacer_x.toFixed(2)} units (${breakdown.spacer_x_mm.toFixed(1)} mm)</p>`;
+            html += `<p><strong>Spacer Y:</strong> ${breakdown.spacer_y.toFixed(2)} units (${breakdown.spacer_y_mm.toFixed(1)} mm)</p>`;
+        }
+        
         html += '</div>';
         
         document.getElementById('printbed-result').innerHTML = html;
