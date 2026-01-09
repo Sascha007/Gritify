@@ -2,6 +2,7 @@
 
 import numpy as np
 from gritify.geometry import GridfinityBase
+from gritify.modules.grid_pattern import GridPattern
 
 
 class PrintbedBreakdown(GridfinityBase):
@@ -85,7 +86,6 @@ class PrintbedBreakdown(GridfinityBase):
         piece_depth = total_depth / pieces_y
         
         # For simplicity, generate a basic grid pattern piece
-        from gritify.modules.grid_pattern import GridPattern
         grid = GridPattern(self.base_size, self.height_unit, self.tolerance)
         
         # Round to nearest integer for grid units
