@@ -16,7 +16,7 @@ A modular Python web application for generating 3D printable Gridfinity structur
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher (3.8 and 3.9 are end-of-life and no longer supported: the patched Flask/Werkzeug/Flask-CORS releases need 3.9+, the patched pytest 9 needs 3.10+)
 - pip (Python package manager)
 
 ### Setup
@@ -191,7 +191,7 @@ The project uses GitHub Actions for automated testing. Tests run automatically o
 - Manual workflow dispatch
 
 The CI workflow:
-1. Tests against Python 3.8, 3.9, 3.10, 3.11, and 3.12
+1. Tests against Python 3.10, 3.11, and 3.12
 2. Runs all unit and integration tests
 3. Generates code coverage reports
 4. Uploads coverage to Codecov (if configured)

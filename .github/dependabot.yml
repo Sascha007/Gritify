@@ -1,0 +1,39 @@
+# Dependabot version updates. Security updates additionally require
+# "Dependabot alerts" / "Dependabot security updates" in the repository settings.
+# Labels: Dependabot defaults ("dependencies" + ecosystem), created automatically.
+# No npm entry: the frontend loads Three.js from a CDN (static/index.html), there is no package.json.
+version: 2
+
+updates:
+  # Python packages (requirements.txt, requirements-dev.txt)
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "pip"
+    groups:
+      python-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions in .github/workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: "actions"
+    groups:
+      actions-minor-patch:
+        update-types:
+          - minor
+          - patch
