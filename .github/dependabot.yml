@@ -14,6 +14,9 @@ updates:
       time: "06:00"
       timezone: Europe/Berlin
     open-pull-requests-limit: 5
+    # Only raise lower bounds (e.g. numpy>=1.22.0) when the newest version no longer satisfies them;
+    # exact pins (==) are still bumped. Prevents floors that drop supported Python versions.
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: "pip"
     groups:
